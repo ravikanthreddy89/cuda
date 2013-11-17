@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define N 5
+#define N 6
 
 __global__ void add( float *a, float *b, float *c) {
 	int tid = blockIdx.x;	//Handle the data at the index
@@ -13,7 +13,7 @@ __global__ void add( float *a, float *b, float *c) {
 
 __global__ void scale(float *a, int size, int index){
  	int i;
-	int start=(index*size);
+	int start=(index*size+index);
 	int end=(index*size+size);
 	
 	for(i=start+1;i<end;i++){
@@ -51,10 +51,12 @@ int main(){
 	cudaMalloc ( (void**)&dev_a, N*N* sizeof (float) );
 	cudaMalloc ( (void**)&dev_b, N*N* sizeof (float) );
 	cudaMalloc ( (void**)&dev_c, N*N* sizeof (float) );
-	
+
+
+	srand((unsigned)2);
 	//fill the arrays 'a' and 'b' on the CPU
 	for ( i = 0; i <= (N*N); i++) {
-		a[i] = i+1;
+		a[i] =((rand()%10)+1);
 	}
 	
 	printf("Matrix a is :\n");
@@ -64,34 +66,41 @@ int main(){
            else printf("%lf ",a[i]);
          }
 
-
-	//copy the arrays 'a' and 'b' to the GPU
-	cudaMemcpy( dev_a, a, N*N*sizeof(float), cudaMemcpyHostToDevice);
-								
-	//add<<<threads, 1>>> (dev_a, dev_b, dev_c);
-
+	cudaMemcpy( dev_a, a, N*N*sizeof(float), cudaMemcpyHostToDevice);//copy array to device memory
+       
         /*Perform LU Decomposition*/
-        
- 	printf("Performing LU decomposition \n");
+      	printf("\n=========================================================="); 
 	for(i=0;i<N;i++){
-        scale<<<1,1>>>(dev_a,N,i);//scaling step
+        printf("\nPerforming scaling \n");
+        scale<<<1,1>>>(dev_a,N,i);
+      	reduce<<<1,(N-i-1)>>>(dev_a,N,i);
 
-        reduce<<<1, (N-i-1)>>>(dev_a, N, i);//reduction step
-          
-        }
+       /* 
+        scale<<<1,1>>>(dev_a,N,0);//scaling step
+        reduce<<<1, (N-0-1)>>>(dev_a, N, 0);//reduction step
+	
+	scale<<<1,1>>>(dev_a,N,1);
+ 	reduce<<<1,(N-1-1)>>>(dev_a,N,1);
 
- 	printf("Done with LU decomposition");
+	scale<<<1,1>>>(dev_a,N,2);
+ 	reduce<<<1,(N-2-1)>>>(dev_a,N,2);
 
-         /*LU decomposition ends here*/
+	scale<<<1,1>>>(dev_a,N,3);
+ 	reduce<<<1,(N-3-1)>>>(dev_a,N,3);
 
-	//copy the array 'c' back from the GPU to the CPU
-	cudaMemcpy( c, dev_a, N*N*sizeof(float),cudaMemcpyDeviceToHost );
-								
-								
-	//display the results
-	printf("\nVector c = a+b:\n");
+	scale<<<1,1>>>(dev_a,N,4);
+ 	reduce<<<1,(N-4-1)>>>(dev_a,N,4);
+
+	scale<<<1,1>>>(dev_a,N,5);
+ 	reduce<<<1,(N-5-1)>>>(dev_a,N,5);*/
+       }
+        /*LU decomposition ends here*/
+
+	cudaMemcpy( c, dev_a, N*N*sizeof(float),cudaMemcpyDeviceToHost );//copy array back to host
+
+       //display the results
+	printf("\nCopied matrix C is \n");
 	for ( i = 0; i < (N*N); i++) {
-//		printf( "%d + %d = %d\n", a[i], b[i],c[i]);
                if(i%N==0)
 		printf( "\n%f  ", c[i]);  
                else printf("%lf ",c[i]);
@@ -113,6 +122,8 @@ int main(){
 	  printf("\n");
           }*/
 
+	printf("=======================================================");
+	printf("\n Performing inplace verification \n");
         /*Inplace verification step*/
 
         for(i=0;i<N;i++){
@@ -134,7 +145,7 @@ int main(){
 
 
         printf("==================================================");
-         printf("The b matrix\n");	
+         printf("\nThe b matrix\n");	
 
          for(i=0;i<N;i++){
          	for(j=0;j<N;j++){
