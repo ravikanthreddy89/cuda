@@ -25,7 +25,8 @@ __global__ void scale(float *a, int size, int index){
 
 __global__ void reduce(float *a, int size, int index){
 	int i;
-        int tid=threadIdx.x;
+       // int tid=threadIdx.x;
+	int tid=blockIdx.x;
 	int start= ((index+tid+1)*size+index);
 	int end= ((index+tid+1)*size+size);
 
@@ -102,7 +103,8 @@ int main(int argc, char *argv[]){
 	for(i=0;i<N;i++){
        // printf("\nPerforming scaling \n");
         scale<<<1,1>>>(dev_a,N,i);
-      	reduce<<<1,(N-i-1)>>>(dev_a,N,i);
+      //	reduce<<<1,(N-i-1)>>>(dev_a,N,i);
+	reduce<<<(N-i-1),1>>>(dev_a,N,i);
 
        /* 
         scale<<<1,1>>>(dev_a,N,0);//scaling step
@@ -140,11 +142,11 @@ int main(int argc, char *argv[]){
 	printf("\n");*/	
 
 	/*copy the result matrix into explicit 2D matrix for verification*/
-        for(i=0;i<N;i++){
+       /* for(i=0;i<N;i++){
              for(j=0;j<N;j++){
 		result[i][j]=c[i*N+j];
 		}
-        }
+        }*/
 
         /*printf("The result matrix\n");	
         for(i=0;i<N;i++){
@@ -158,7 +160,7 @@ int main(int argc, char *argv[]){
 	printf("\n Performing inplace verification \n");
         /*Inplace verification step*/
 
-        for(i=0;i<N;i++){
+/*        for(i=0;i<N;i++){
            for(j=0;j<N;j++){
                 b[i][j]=0;
               for(k=0;k<N;k++){
@@ -173,10 +175,10 @@ int main(int argc, char *argv[]){
 
              }
            }
-         }
+         }*/
 
 
-        printf("==================================================");
+        printf("\n==================================================\n");
         // printf("\nThe b matrix\n");	
          /*
          for(i=0;i<N;i++){
