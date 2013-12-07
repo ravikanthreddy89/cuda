@@ -5,7 +5,7 @@ LU decomposition using CUDA
 
 2) Two versions : 1) Using global memory alone 2) Using shared memory for pivot row
 
-3) For both the implementations single thread scales the pivot row
+3) For both the implementations kernel with single thread scales the pivot row
  
 4) Global memory : Blocks with one thread each  are launched for reduction.  
 
