@@ -1,0 +1,71 @@
+#!/bin/bash
+#SBATCH --partition=gpu
+#SBATCH --nodes=1
+#SBATCH --gres=gpu:2
+#SBATCH --tasks-per-node=1
+#SBATCH --job-name=sharringan
+##SBATCH --time=06:00:00
+#SBATCH --mail-user=rgudipat@buffalo.edu
+#SBATCH --output=Shared_10.out
+#SBATCH --error=Shared_10.out
+
+echo "SLURM Environment Variables:"
+echo "Job ID = "$SLURM_JOB_ID
+echo "Job Name = "$SLURM_JOB_NAME
+echo "Job Node List = "$SLURM_JOB_NODELIST
+echo "Number of Nodes = "$SLURM_NNODES
+echo "Tasks per node = "$SLURM_NTASKS_PER_NODE
+echo "CPUs per task = "$SLURM_CPUS_PER_TASK
+echo "/scratch/jobid = "$SLURMTMPDIR
+echo "Submit Host = "$SLURM_SUBMIT_HOST
+echo "Submit Directory = "$SLURM_SUBMIT_DIR
+echo 
+echo
+
+ulimit -s unlimited
+#
+
+module load cuda
+echo "Modules loaded"
+
+echo "\nPerforming test run\n"
+echo "1024 time\n"
+./out_10 1024
+
+
+echo "2048 time\n"
+./out_10 2048
+
+
+echo "3072 time\n"
+./out_10 3072
+
+echo "4096 time\n"
+./out_10 4096
+
+
+echo "5120 time\n"
+./out_10 5120
+
+
+echo "6144 time \n"
+./out_10 6144
+
+echo "7168 time\n"
+./out_10 7168
+
+echo "8192 time\n"
+./out_10 8192
+
+
+echo "10240 time\n"
+./out_10 10240
+
+echo "12288 time\n"
+./out_10 12288
+
+echo "14336 time\n"
+./out_10 14336
+
+#
+echo "All Done!"
